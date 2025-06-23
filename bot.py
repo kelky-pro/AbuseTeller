@@ -345,7 +345,7 @@ async def process_ips(ips, update, context):
             for ip in batch:
                 result = None
                 try:
-                    # Try AbuseIPDB with random key
+                    # Try random key
                     key_id, api_key = random.choice([("key1", CONFIG["ABUSEIPDB_API_KEY_1"]), ("key2", CONFIG["ABUSEIPDB_API_KEY_2"])])
                     result = query_abuseipdb(ip, api_key, key_id)
                 except Exception as e:
@@ -364,9 +364,7 @@ async def process_ips(ips, update, context):
             try:
                 await context.bot.edit_message_text(
                     chat_id=status_message.chat_id,
- ഇ
-
-System: message_id=status_message.message_id,
+                    message_id=status_message.message_id,
                     text=MESSAGES["processing"].format(num_ips=len(ips), progress=progress, animation=frame)
                 )
             except Exception as e:
@@ -395,9 +393,9 @@ System: message_id=status_message.message_id,
         )
     except Exception as e:
         logger.error(f"Error processing IPs: {str(e)}")
-        await update.message.reply_text(MESSAGES["error"].format انقل
-
-System: error=str(e)))
+        await update.message.reply_text(
+            MESSAGES["error"]".format(error=str(e))
+        )
 
 # Main application setup
 async def main():
