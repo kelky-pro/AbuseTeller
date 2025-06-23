@@ -394,7 +394,7 @@ async def process_ips(ips, update, context):
     except Exception as e:
         logger.error(f"Error processing IPs: {str(e)}")
         await update.message.reply_text(
-            MESSAGES["error"]".format(error=str(e))
+           MESSAGES["error"].format(error=str(e))
         )
 
 # Main application setup
