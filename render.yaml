@@ -1,6 +1,6 @@
 services:
   - type: worker
-    name: kelbudget-bot
+    name: Abuseteller_bot
     env: python
     region: oregon
     buildCommand: pip install -r requirements.txt
