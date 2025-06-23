@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 # Configuration via environment variables
 CONFIG = {
-    "TELEGRAM_BOT_TOKEN": os.getenv("TELEGRAM_BOT_TOKEN", ""),
+    "TELEGRAM_BOT_TOKEN": os.getenv("TELEGRAM_BOT_TOKEN", "8090856043:AAGGQrdyVWhHEWT8qfhQlT9nmSqHaQ6mrtc"),
     "ABUSEIPDB_API_KEY_1": os.getenv("ABUSEIPDB_API_KEY_1", "eca572ae930dd61ded6eb59112d8bb15ea657fb34a069ec89543fa9a0d6e47ecd5bac8457566bdf3"),
     "ABUSEIPDB_API_KEY_2": os.getenv("ABUSEIPDB_API_KEY_2", "399456c14ee1b25c6cc9218a3257eeee373259c9aa813e0cddbe3ba296cbd651a975e70b11b8de33"),
     "MAX_IPS": int(os.getenv("MAX_IPS", 100)),
