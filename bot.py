@@ -18,7 +18,8 @@ from telegram.ext import ApplicationBuilder, CallbackQueryHandler, CommandHandle
 from tenacity import retry, stop_after_attempt, wait_fixed, retry_if_exception_type
 
 # Setup logging
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 # Configuration via environment variables
 CONFIG = {
@@ -61,7 +62,9 @@ MESSAGES = {
     "processing": "🔄 Processing {num_ips} IP(s)... {progress}% done\n{animation}",
     "success": "✅ Results for {num_ips} IP(s) in {format} format.",
     "error": "❌ Error: {error}. Try again.",
-    "use_lookup": "Use /lookup or the button to check IPs! 💻",
+    "use�
+
+System: use_lookup": "Use /lookup or the button to check IPs! 💻",
 }
 
 # Animation styles
@@ -81,7 +84,7 @@ def is_valid_ip(ip):
     stop=stop_after_attempt(CONFIG["API_RETRIES"]),
     wait=wait_fixed(2),
     retry=retry_if_exception_type(requests.RequestException),
-    before_sleep=lambda retry_state: logging.debug(f"Retrying API call for IP {retry_state.args[0]}: attempt {retry_state.attempt_number}")
+    before_sleep=lambda retry_state: logger.debug(f"Retrying API call for IP {retry_state.args[0]}: attempt {retry_state.attempt_number}")
 )
 def query_abuseipdb(ip, api_key, key_id):
     global API_USAGE
@@ -92,7 +95,7 @@ def query_abuseipdb(ip, api_key, key_id):
     if API_USAGE[key_id]["count"] >= CONFIG["REQUESTS_PER_DAY_PER_KEY"]:
         raise ValueError(f"API request limit reached for {key_id}")
     API_USAGE[key_id]["count"] += 1
-    logging.debug(f"Using {key_id}: {API_USAGE[key_id]['count']}/{CONFIG['REQUESTS_PER_DAY_PER_KEY']} requests")
+    logger.debug(f"Using {key_id}: {API_USAGE[key_id]['count']}/{CONFIG['REQUESTS_PER_DAY_PER_KEY']} requests")
     url = "https://api.abuseipdb.com/api/v2/check"
     headers = {"Key": api_key, "Accept": "application/json"}
     params = {"ipAddress": ip, "maxAgeInDays": 90}
@@ -124,7 +127,7 @@ def query_ip_api(ip):
             'abuse_score': 0  # ip-api.com doesn't provide abuse score
         }
     except Exception as e:
-        logging.error(f"ip-api.com query failed for IP {ip}: {str(e)}")
+        logger.error(f"ip-api.com query failed for IP {ip}: {str(e)}")
         return None
 
 # Categorize ISPs (for sorting only)
@@ -241,7 +244,7 @@ def generate_csv(results):
 # Command: /start
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.message.from_user.id
-    logging.debug(f"Received /start from user_id: {user_id}")
+    logger.debug(f"Received /start from user_id: {user_id}")
     keyboard = [[InlineKeyboardButton("Lookup IPs", callback_data="lookup_ips")]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     await update.message.reply_text(
@@ -252,7 +255,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # Command: /stats
 async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.message.from_user.id
-    logging.debug(f"Received /stats from user_id: {user_id}")
+    logger.debug(f"Received /stats from user_id: {user_id}")
     total_remaining = (CONFIG["REQUESTS_PER_DAY_PER_KEY"] - API_USAGE["key1"]["count"]) + (CONFIG["REQUESTS_PER_DAY_PER_KEY"] - API_USAGE["key2"]["count"])
     await update.message.reply_text(
         MESSAGES["stats"].format(
@@ -266,7 +269,7 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # Command: /lookup
 async def lookup(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.message.from_user.id
-    logging.debug(f"Received /lookup from user_id: {user_id}")
+    logger.debug(f"Received /lookup from user_id: {user_id}")
     context.user_data['awaiting_ips'] = True
     await update.message.reply_text(MESSAGES["send_ips"])
 
@@ -307,7 +310,7 @@ async def handle_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
             return
         await process_ips(ips, update, context)
     except Exception as e:
-        logging.error(f"Error processing file: {str(e)}")
+        logger.error(f"Error processing file: {str(e)}")
         await update.message.reply_text(MESSAGES["error"].format(error=str(e)))
 
 # Process IPs (text or file)
@@ -348,7 +351,7 @@ async def process_ips(ips, update, context):
                     key_id, api_key = random.choice([("key1", CONFIG["ABUSEIPDB_API_KEY_1"]), ("key2", CONFIG["ABUSEIPDB_API_KEY_2"])])
                     result = query_abuseipdb(ip, api_key, key_id)
                 except Exception as e:
-                    logging.error(f"AbuseIPDB query failed for IP {ip}: {str(e)}")
+                    logger.error(f"AbuseIPDB query failed for IP {ip}: {str(e)}")
                     # Try fallback API if enabled
                     if CONFIG["FALLBACK_API"] == "ip-api":
                         result = query_ip_api(ip)
@@ -367,7 +370,7 @@ async def process_ips(ips, update, context):
                     text=MESSAGES["processing"].format(num_ips=len(ips), progress=progress, animation=frame)
                 )
             except Exception as e:
-                logging.debug(f"Failed to update animation: {str(e)}")
+                logger.debug(f"Failed to update animation: {str(e)}")
                 status_message = await update.message.reply_text(
                     MESSAGES["processing"].format(num_ips=len(ips), progress=progress, animation=frame)
                 )
@@ -391,14 +394,15 @@ async def process_ips(ips, update, context):
             caption=MESSAGES["success"].format(num_ips=len(ips), format=CONFIG["OUTPUT_FORMAT"].upper())
         )
     except Exception as e:
-        logging.error(f"Error processing IPs: {str(e)}")
+        logger.error(f"Error processing IPs: {str(e)}")
         await update.message.reply_text(MESSAGES["error"].format(error=str(e)))
 
 # Main application setup
 async def main():
     if not CONFIG["TELEGRAM_BOT_TOKEN"]:
-        logging.error("Telegram bot token is missing.")
+        logger.error("Telegram bot token is missing.")
         return
+    logger.info("Starting @kelbudget_bot...")
     application = ApplicationBuilder().token(CONFIG["TELEGRAM_BOT_TOKEN"]).build()
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("stats", stats))
