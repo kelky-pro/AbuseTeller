@@ -62,9 +62,7 @@ MESSAGES = {
     "processing": "🔄 Processing {num_ips} IP(s)... {progress}% done\n{animation}",
     "success": "✅ Results for {num_ips} IP(s) in {format} format.",
     "error": "❌ Error: {error}. Try again.",
-    "use�
-
-System: use_lookup": "Use /lookup or the button to check IPs! 💻",
+    "use_lookup": "Use /lookup or the button to check IPs! 💻",
 }
 
 # Animation styles
@@ -366,7 +364,9 @@ async def process_ips(ips, update, context):
             try:
                 await context.bot.edit_message_text(
                     chat_id=status_message.chat_id,
-                    message_id=status_message.message_id,
+ ഇ
+
+System: message_id=status_message.message_id,
                     text=MESSAGES["processing"].format(num_ips=len(ips), progress=progress, animation=frame)
                 )
             except Exception as e:
@@ -395,7 +395,9 @@ async def process_ips(ips, update, context):
         )
     except Exception as e:
         logger.error(f"Error processing IPs: {str(e)}")
-        await update.message.reply_text(MESSAGES["error"].format(error=str(e)))
+        await update.message.reply_text(MESSAGES["error"].format انقل
+
+System: error=str(e)))
 
 # Main application setup
 async def main():
