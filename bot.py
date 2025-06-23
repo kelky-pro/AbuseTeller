@@ -10,7 +10,7 @@ ABUSEIPDB_API_KEYS = [
     "399456c14ee1b25c6cc9218a3257eeee373259c9aa813e0cddbe3ba296cbd651a975e70b11b8de33"
 ]
 VIRUSTOTAL_API_KEY = "3302110c35e5e509eb7a27bbef49c6a5c5fed7051e7fd6f6fc36d6cdebca1673"
-TELEGRAM_BOT_TOKEN = "YOUR_TELEGRAM_BOT_TOKEN_HERE"  # Replace with your actual bot token
+TELEGRAM_BOT_TOKEN = "7767832251:AAHSssrwQX6TuLLwkliJgV3EmpN3KGVb82I"  # Replace with your actual bot token
 
 # Track current AbuseIPDB key in use (for rotation)
 abuse_key_index = 0
